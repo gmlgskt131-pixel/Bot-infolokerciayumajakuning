@@ -1,11 +1,12 @@
 import os
+import re
 import requests
 import xml.etree.ElementTree as ET
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-RSS_URL = "RSS_URL = "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml"
+RSS_URL = "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml"
 
 xml = requests.get(RSS_URL, timeout=30).text
 root = ET.fromstring(xml)
@@ -17,11 +18,14 @@ for item in items[:5]:
     link = item.findtext("link", "")
     desc = item.findtext("description", "")
 
-    pesan = f"""📢 INFO LOKER TERBARU CIAYUMAJAKUNING 
+    # Hapus semua tag HTML
+    desc = re.sub(r"<.*?>", "", desc).strip()
+
+    pesan = f"""📢 INFO LOKER TERBARU
 
 🏢 {title}
 
-📝 {desc[:250]}
+📝 {desc[:300]}
 
 🔗 {link}
 
@@ -33,7 +37,8 @@ for item in items[:5]:
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
         data={
             "chat_id": CHAT_ID,
-            "text": pesan
+            "text": pesan,
+            "disable_web_page_preview": False
         },
         timeout=30
     )
