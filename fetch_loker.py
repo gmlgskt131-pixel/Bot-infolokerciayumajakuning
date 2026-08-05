@@ -42,11 +42,12 @@ for item in items[:5]:
 """
 
     requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        data={
-            "chat_id": CHAT_ID,
-            "text": pesan,
-            "disable_web_page_preview": False
-        },
-        timeout=30
-    )
+        requests.post(
+    f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+    data={
+        "chat_id": CHAT_ID,
+        "photo": "https://i.ibb.co/qLyBh0p3/logo.png",
+        "caption": pesan
+    },
+    timeout=30
+)
