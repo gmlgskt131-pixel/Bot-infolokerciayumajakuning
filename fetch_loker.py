@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-RSS_URL = "https://rss.app/feeds/tebpd3uNK7QUF0yi.xml"
+RSS_URL = "RSS_URL = "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml"
 
 xml = requests.get(RSS_URL, timeout=30).text
 root = ET.fromstring(xml)
@@ -17,7 +17,7 @@ for item in items[:5]:
     link = item.findtext("link", "")
     desc = item.findtext("description", "")
 
-    pesan = f"""📢 INFO LOKER TERBARU
+    pesan = f"""📢 INFO LOKER TERBARU CIAYUMAJAKUNING 
 
 🏢 {title}
 
