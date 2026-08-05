@@ -3,7 +3,7 @@ name: Auto Multi-Source Loker Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1,6,11 * * *' # Otomatis jalan jam 08.00, 13.00, dan 18.00 WIB
+    - cron: '0 1,6,11 * * *'
 
 jobs:
   run-bot:
@@ -24,14 +24,5 @@ jobs:
       - name: Jalankan Script Loker
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-          CHAT_ID: "@infolokerciayumajakuning" # Ganti dengan username/ID channel Anda
+          CHAT_ID: "@infolokerciayumajakuning"
         run: python fetch_loker.py
-
-      - name: Commit Riwayat Pesan
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action Bot"
-          git add sent_posts.json || true
-          git commit -m "Update sent posts history [skip ci]" || true
-          git push
-          
