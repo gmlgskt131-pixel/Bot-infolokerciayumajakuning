@@ -2,62 +2,99 @@ import os
 import re
 import requests
 import xml.etree.ElementTree as ET
+import json
+from datetime import datetime
 
-# Ambil dari GitHub Secrets
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-# RSS Feed
-RSS_URL = "https://rss.app/feeds/tebpd3uNK7QUF0yi.xml"
+RSS_FEEDS = [
+    "https://rss.app/feeds/tebpd3uNK7QUF0yi.xml",
+    "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml",
+    "https://rss.app/feeds/7oEScJlZFeoYE3oo.xml"
+]
 
-# Logo (ganti dengan direct link gambar)
 LOGO_URL = "https://i.ibb.co/xxxxxxxx/logo.png"
 
-# Link iklan
 IKLAN = "https://crypotential.com/kxseizepn?key=b27dbc018fb141e5773a6cc85f207c78"
 
-# Ambil RSS
-xml = requests.get(RSS_URL, timeout=30).text
-root = ET.fromstring(xml)
+# Database anti duplikat
+try:
+    with open("sent.json", "r") as f:
+        sent = json.load(f)
+except:
+    sent = []
 
-# Ambil 5 postingan terbaru
-items = root.findall(".//item")[:5]
+for RSS_URL in RSS_FEEDS:
 
-for item in items:
+    try:
+        xml = requests.get(RSS_URL, timeout=30).text
+        root = ET.fromstring(xml)
+        items = root.findall(".//item")
 
-    title = item.findtext("title", "Tanpa Judul")
-    link = item.findtext("link", "")
-    desc = item.findtext("description", "")
+        for item in items:
 
-    # Bersihkan HTML
-    desc = re.sub(r"<.*?>", "", desc)
-    desc = desc.strip()
+            title = item.findtext("title", "")
+            link = item.findtext("link", "")
+            desc = item.findtext("description", "")
 
-    pesan = f"""📢 INFO LOKER TERBARU
+            if link in sent:
+                continue
+
+            desc = re.sub(r"<.*?>", "", desc).strip()
+
+            pesan = f"""📢 INFO LOKER TERBARU
 
 🏢 {title}
 
 📝 {desc[:250]}
 
-🔗 Link Lowongan:
+🔗 Lamar:
 {link}
 
 ━━━━━━━━━━━━━━
 
-💰 Ingin mendapatkan penghasilan tambahan dari HP?
+🕒 Update:
+{datetime.now().strftime("%d-%m-%Y %H:%M")}
 
+💰 Penghasilan Tambahan
 👉 {IKLAN}
 
 🤖 INFO LOKER CIAYUMAJAKUNING
 """
 
-    # Kirim foto + caption ke Telegram
-    requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-        data={
-            "chat_id": CHAT_ID,
-            "photo": LOGO_URL,
-            "caption": pesan
-        },
-        timeout=30
-    )
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {
+                            "text": "📄 Lihat Lowongan",
+                            "url": link
+                        }
+                    ],
+                    [
+                        {
+                            "text": "💰 Penghasilan Tambahan",
+                            "url": IKLAN
+                        }
+                    ]
+                ]
+            }
+
+            requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+                data={
+                    "chat_id": CHAT_ID,
+                    "photo": LOGO_URL,
+                    "caption": pesan,
+                    "reply_markup": json.dumps(keyboard)
+                },
+                timeout=30
+            )
+
+            sent.append(link)
+
+        with open("sent.json", "w") as f:
+            json.dump(sent, f)
+
+    except Exception as e:
+        print("ERROR:", e)
