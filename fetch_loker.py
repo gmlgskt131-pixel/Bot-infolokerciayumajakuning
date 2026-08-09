@@ -2,12 +2,11 @@ import os
 import re
 import sys
 import json
+import time
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-# 1. Cara pengambilan Token & Chat ID yang benar
-# Nilai rahasia dimasukkan langsung atau diambil dari nama Environment Variable di GitHub Secrets
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8861664027:AAFhS__mhGD07rvyZ3Oyr8re0Tau8_lKw3w")
 CHAT_ID = os.getenv("CHAT_ID", "-1004426208468")
 
@@ -17,10 +16,9 @@ RSS_FEEDS = [
     "https://rss.app/feeds/7oEScJlZFeoYE3oo.xml"
 ]
 
-LOGO_URL = "https://i.ibb.co/xxxxxxxx/logo.png"
 IKLAN = "https://crypotential.com/kxseizepn?key=b27dbc018fb141e5773a6cc85f207c78"
 
-# 2. Database Anti-Duplikat
+# Database Anti-Duplikat
 try:
     with open("sent.json", "r") as f:
         sent = json.load(f)
@@ -35,14 +33,14 @@ for RSS_URL in RSS_FEEDS:
         response = requests.get(RSS_URL, timeout=30)
         
         if response.status_code != 200:
-            print(f"Gagal mengambil RSS ({response.status_code}): {RSS_URL}")
+            print(f"Gagal mengambil RSS ({response.status_code})")
             continue
 
-        # Parsing XML secara aman
         root = ET.fromstring(response.content)
         items = root.findall(".//item")
 
-        for item in items:
+        # Batasi maksimal 5 item teratas per feed per eksekusi untuk mencegah spam/rate limit
+        for item in items[:5]:
             title = item.findtext("title", "").strip()
             link = item.findtext("link", "").strip()
             desc = item.findtext("description", "").strip()
@@ -50,27 +48,24 @@ for RSS_URL in RSS_FEEDS:
             if not link or link in sent:
                 continue
 
-            # Clean HTML tag dari deskripsi
             desc = re.sub(r"<.*?>", "", desc).strip()
 
-            pesan = f"""📢 INFO LOKER TERBARU
+            pesan = f"""📢 *INFO LOKER TERBARU*
 
-🏢 {title}
+🏢 *{title}*
 
-📝 {desc[:250]}...
+📝 {desc[:200]}...
 
-🔗 Lamar:
-{link}
+🔗 *Lamar:* {link}
 
 ━━━━━━━━━━━━━━
 
-🕒 Update:
-{datetime.now().strftime("%d-%m-%Y %H:%M")}
+🕒 *Update:* {datetime.now().strftime("%d-%m-%Y %H:%M")}
 
-💰 Penghasilan Tambahan
+💰 *Penghasilan Tambahan*
 👉 {IKLAN}
 
-🤖 INFO LOKER CIAYUMAJAKUNING"""
+🤖 *INFO LOKER CIAYUMAJAKUNING*"""
 
             keyboard = {
                 "inline_keyboard": [
@@ -79,32 +74,34 @@ for RSS_URL in RSS_FEEDS:
                 ]
             }
 
-            # Kirim Ke Telegram
-            telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+            # Menggunakan sendMessage (Lebih aman & tidak butuh link gambar yang valid)
+            telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
             payload = {
                 "chat_id": CHAT_ID,
-                "photo": LOGO_URL,
-                "caption": pesan,
+                "text": pesan,
+                "parse_mode": "Markdown",
                 "reply_markup": json.dumps(keyboard)
             }
 
-            res = requests.post(telegram_url, data=payload, timeout=30)
+            res = requests.post(telegram_url, json=payload, timeout=30)
             
             if res.status_code == 200:
-                print(f" [BERHASIL] Sent: {title}")
+                print(f"[BERHASIL] Sent: {title}")
                 sent.append(link)
+                # Jeda 3 detik antar pesan agar terhindar dari Error 429 (Too Many Requests)
+                time.sleep(3)
             else:
-                print(f" [GAGAL TELEGRAM] Status {res.status_code}: {res.text}")
+                print(f"[GAGAL TELEGRAM] Status {res.status_code}: {res.text}")
                 has_error = True
 
     except Exception as e:
         print(f"ERROR memproses {RSS_URL}: {e}")
         has_error = True
 
-# 3. Simpan database anti-duplikat
+# Simpan database sent.json yang baru
 with open("sent.json", "w") as f:
     json.dump(sent, f, indent=2)
 
-# Jika ada error selama proses, hentikan dengan exit code 1 agar GitHub Actions memberitahukan tanda merah
 if has_error:
+    sys.exit(1)
     print("\nProses selesai dengan beberapa error.")
