@@ -3,6 +3,7 @@ import re
 import sys
 import json
 import time
+import html
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
@@ -10,8 +11,8 @@ from datetime import datetime
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8861664027:AAFhS__mhGD07rvyZ3Oyr8re0Tau8_lKw3w")
 CHAT_ID = os.getenv("CHAT_ID", "-1004426208468")
 
+# Masukkan daftar RSS yang aktif (URL 404 bisa dihapus atau diperbarui)
 RSS_FEEDS = [
-    "https://rss.app/feeds/tebpd3uNK7QUF0yi.xml",
     "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml",
     "https://rss.app/feeds/7oEScJlZFeoYE3oo.xml"
 ]
@@ -27,45 +28,58 @@ except (FileNotFoundError, json.JSONDecodeError):
 
 has_error = False
 
+def clean_text(raw_text):
+    if not raw_text:
+        return ""
+    # Hapus tag HTML
+    text = re.sub(r"<.*?>", "", raw_text)
+    # Hapus whitespace berlebih
+    text = " ".join(text.split())
+    # Escape karakter khusus HTML agar tidak crash di Telegram HTML parser
+    return html.escape(text)
+
 for RSS_URL in RSS_FEEDS:
     try:
         print(f"Mengambil RSS Feed: {RSS_URL}")
         response = requests.get(RSS_URL, timeout=30)
         
         if response.status_code != 200:
-            print(f"Gagal mengambil RSS ({response.status_code})")
+            print(f"Gagal mengambil RSS ({response.status_code}) - Lewati feed ini.")
             continue
 
         root = ET.fromstring(response.content)
         items = root.findall(".//item")
 
-        # Batasi maksimal 5 item teratas per feed per eksekusi untuk mencegah spam/rate limit
-        for item in items[:5]:
-            title = item.findtext("title", "").strip()
-            link = item.findtext("link", "").strip()
-            desc = item.findtext("description", "").strip()
+        for item in items[:5]:  # Ambil maksimal 5 item per feed
+            title_raw = item.findtext("title", "")
+            link_raw = item.findtext("link", "")
+            desc_raw = item.findtext("description", "")
 
-            if not link or link in sent:
+            if not link_raw or link_raw in sent:
                 continue
 
-            desc = re.sub(r"<.*?>", "", desc).strip()
+            title = clean_text(title_raw)
+            link = link_raw.strip()
+            desc = clean_text(desc_raw)
 
-            pesan = f"""📢 *INFO LOKER TERBARU*
+            # Jika deskripsi terlalu pendek/kosong, gunakan ringkasan dari judul
+            if len(desc) < 10:
+                desc = "Klik tombol 'Lihat Lowongan' di bawah untuk detail kualifikasi dan cara melamar."
 
-🏢 *{title}*
+            pesan = f"""📢 <b>INFO LOKER TERBARU</b>
 
-📝 {desc[:200]}...
+🏢 <b>{title}</b>
 
-🔗 *Lamar:* {link}
+📝 {desc[:350]}...
 
 ━━━━━━━━━━━━━━
 
-🕒 *Update:* {datetime.now().strftime("%d-%m-%Y %H:%M")}
+🕒 <b>Update:</b> {datetime.now().strftime("%d-%m-%Y %H:%M")}
 
-💰 *Penghasilan Tambahan*
+💰 <b>Penghasilan Tambahan</b>
 👉 {IKLAN}
 
-🤖 *INFO LOKER CIAYUMAJAKUNING*"""
+🤖 <b>INFO LOKER CIAYUMAJAKUNING</b>"""
 
             keyboard = {
                 "inline_keyboard": [
@@ -74,22 +88,21 @@ for RSS_URL in RSS_FEEDS:
                 ]
             }
 
-            # Menggunakan sendMessage (Lebih aman & tidak butuh link gambar yang valid)
             telegram_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
             payload = {
                 "chat_id": CHAT_ID,
                 "text": pesan,
-                "parse_mode": "Markdown",
-                "reply_markup": json.dumps(keyboard)
+                "parse_mode": "HTML",  # Ganti dari Markdown ke HTML
+                "reply_markup": json.dumps(keyboard),
+                "disable_web_page_preview": True  # Mencegah preview link merusak tampilan
             }
 
             res = requests.post(telegram_url, json=payload, timeout=30)
             
             if res.status_code == 200:
-                print(f"[BERHASIL] Sent: {title}")
+                print(f"[BERHASIL] Sent: {title_raw[:30]}...")
                 sent.append(link)
-                # Jeda 3 detik antar pesan agar terhindar dari Error 429 (Too Many Requests)
-                time.sleep(3)
+                time.sleep(3)  # Jeda anti rate limit
             else:
                 print(f"[GAGAL TELEGRAM] Status {res.status_code}: {res.text}")
                 has_error = True
@@ -98,10 +111,9 @@ for RSS_URL in RSS_FEEDS:
         print(f"ERROR memproses {RSS_URL}: {e}")
         has_error = True
 
-# Simpan database sent.json yang baru
+# Simpan database sent.json
 with open("sent.json", "w") as f:
     json.dump(sent, f, indent=2)
 
 if has_error:
     sys.exit(1)
-    print("\nProses selesai dengan beberapa error.")
