@@ -1,0 +1,43 @@
+name: Auto Multi-Source Loker Bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2,6,12 * * *'
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    # Izin untuk menyimpan/commit kembali file sent.json ke repositori
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Jalankan Script Loker
+        env:
+          BOT_TOKEN: ${{ 8861664027:AAFhS__mhGD07rvyZ3Oyr8re0Tau8_lKw3w }}
+          CHAT_ID: "@infolokerciayumajakuning" # Atau dari ${{ secrets.CHAT_ID }}
+        run: python fetch_loker.py
+
+      - name: Simpan Database Anti-Duplikat (sent.json)
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add sent.json
+          git commit -m "Auto-update sent.json [skip ci]" || exit 0
+          git push
+          
