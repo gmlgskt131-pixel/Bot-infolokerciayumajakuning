@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import json
 from datetime import datetime
 
-BOT_TOKEN = os.getenv("8883789126:AAFs-YoNg2oBvtkezZAcveq-1qmBMrDIkIE")
+BOT_TOKEN = os.getenv("8861664027:AAFhS__mhGD07rvyZ3Oyr8re0Tau8_lKw3w")
 CHAT_ID = os.getenv("-1004426208468")
 
 RSS_FEEDS = [
