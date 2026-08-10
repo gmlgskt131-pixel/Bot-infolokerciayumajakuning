@@ -1,16 +1,16 @@
 import os
 import telebot
 
-# 1. Mengambil token dari Environment Variable Railway (Gunakan Key: TELEGRAM_TOKEN)
-# Jika tidak ada variable, fallback ke token langsung dalam tanda petik
+# 1. Ambil token dari Environment Variable Railway (atau gunakan token langsung jika variabel tidak ada)
 TOKEN = os.getenv("8883789126:AAHpQbrJKMd1I8xKYpQT_C7LCUB1giQsXqE")
 
+# 2. Inisialisasi bot menggunakan variabel TOKEN
 bot = telebot.TeleBot("8883789126:AAHpQbrJKMd1I8xKYpQT_C7LCUB1giQsXqE")
 
-# Chat ID Anda untuk notifikasi otomatis
+# Chat ID Anda untuk notifikasi otomatis saat bot online
 MY_CHAT_ID = "8684396228"
 
-# 2. Pesan otomatis dikirim langsung ke Telegram Anda saat bot Railway aktif
+# 3. Notifikasi saat server Railway berhasil menyalakan bot
 try:
     bot.send_message(
         MY_CHAT_ID,
@@ -20,7 +20,7 @@ try:
 except Exception as e:
     print(f"Gagal mengirim pesan startup: {e}")
 
-# 3. Handler Perintah Telegram
+# 4. Handler Perintah /start
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.reply_to(
@@ -29,6 +29,7 @@ def start(message):
         "Ketik /help untuk melihat menu."
     )
 
+# 5. Handler Perintah /help
 @bot.message_handler(commands=['help'])
 def help_cmd(message):
     bot.reply_to(
@@ -40,6 +41,7 @@ def help_cmd(message):
         parse_mode="Markdown"
     )
 
+# 6. Handler Perintah /loker
 @bot.message_handler(commands=['loker'])
 def loker(message):
     bot.reply_to(
@@ -47,8 +49,7 @@ def loker(message):
         "📢 Fitur lowongan sedang disiapkan."
     )
 
-# 4. Jalankan Bot
+# 7. Jalankan Bot
 if __name__ == '__main__':
     print("Bot aktif...")
     bot.infinity_polling(skip_pending=True)
-
