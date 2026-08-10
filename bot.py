@@ -25,7 +25,7 @@ except Exception as e:
 def start(message):
     bot.reply_to(
         message,
-        "👋 Selamat datang di Bot Info Loker Ciayumajakuning!\n\n"
+        "👋 Selamat datang di Bot KerjaDimana.id !\n\n"
         "Ketik /help untuk melihat menu."
     )
 
