@@ -79,7 +79,7 @@ for RSS_URL in RSS_FEEDS:
 💰 <b>Penghasilan Tambahan</b>
 👉 {IKLAN}
 
-🤖 <b>INFO LOKER CIAYUMAJAKUNING</b>"""
+🤖 <b>KerjaDimana.id</b>"""
 
             keyboard = {
                 "inline_keyboard": [
