@@ -8,7 +8,7 @@ TOKEN = os.getenv("8883789126:AAHpQbrJKMd1I8xKYpQT_C7LCUB1giQsXqE")
 bot = telebot.TeleBot("8883789126:AAHpQbrJKMd1I8xKYpQT_C7LCUB1giQsXqE")
 
 # Chat ID Anda untuk notifikasi otomatis saat bot online
-MY_CHAT_ID = "8684396228"
+MY_CHAT_ID = "-1004426208468"
 
 # 3. Notifikasi saat server Railway berhasil menyalakan bot
 try:
