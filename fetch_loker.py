@@ -144,9 +144,8 @@ def send_telegram(title, description, link):
         data = response.json()
 
         if response.status_code == 200 and data.get("ok"):
-            print(f"✅ BERHASIL: {html.unescape(title)[:70]}")
-            return True
-
+           print(...)
+           return True
         print("❌ GAGAL TELEGRAM")
         print(f"HTTP Status: {response.status_code}")
         print(f"Response: {response.text}")
