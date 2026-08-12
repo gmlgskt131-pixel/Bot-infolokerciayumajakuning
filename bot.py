@@ -14,7 +14,7 @@ MY_CHAT_ID = "-1004426208468"
 try:
     bot.send_message(
         MY_CHAT_ID,
-        "🤖 **Bot Info Loker Ciayumajakuning Berhasil Online!**\n\nSistem siap menerima perintah.",
+        "🤖 **Bot KerjaDimana.id Berhasil Online!**\n\nSistem siap menerima perintah.",
         parse_mode="Markdown"
     )
 except Exception as e:
