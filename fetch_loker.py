@@ -8,9 +8,10 @@ import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "-1004426208468")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw").strip()
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "-1004426208468"").strip()
 
+TELEGRAM_API = f"https://api.telegram.org/bot{8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw}
 # Masukkan daftar RSS yang aktif (URL 404 bisa dihapus atau diperbarui)
 RSS_FEEDS = [
     "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml",
