@@ -1,5 +1,8 @@
-name: Pesan Telegram Terjadwal
-
+- name: Jalankan Script Loker
+  env:
+  BOT_TOKEN: ${{ 8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw }}
+    CHAT_ID: ${{ -1004426208468 }}
+  run: python fetch_loker.py
 on:
   workflow_dispatch:
 
