@@ -1,0 +1,360 @@
+import os
+import telebot
+from telebot import types
+
+# =========================
+# CONFIG
+# =========================
+
+BOT_TOKEN = os.getenv("8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
+
+if not BOT_TOKEN:
+    raise ValueError("8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
+
+bot = telebot.TeleBot(8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw)
+
+
+# =========================
+# MENU UTAMA
+# =========================
+
+def menu_utama():
+    markup = types.InlineKeyboardMarkup(row_width=2)
+
+    btn_loker = types.InlineKeyboardButton(
+        "🆕 Lowongan Terbaru",
+        callback_data="loker"
+    )
+
+    btn_cari = types.InlineKeyboardButton(
+        "🔎 Cari Lowongan",
+        callback_data="cari"
+    )
+
+    btn_lokasi = types.InlineKeyboardButton(
+        "📍 Pilih Lokasi",
+        callback_data="lokasi"
+    )
+
+    btn_kategori = types.InlineKeyboardButton(
+        "💼 Kategori",
+        callback_data="kategori"
+    )
+
+    btn_channel = types.InlineKeyboardButton(
+        "📢 Channel KerjaDimana.id",
+        url="https://t.me/KerjaDimana_id"
+    )
+
+    btn_help = types.InlineKeyboardButton(
+        "ℹ️ Bantuan",
+        callback_data="help"
+    )
+
+    markup.add(
+        btn_loker,
+        btn_cari,
+        btn_lokasi,
+        btn_kategori
+    )
+
+    markup.add(btn_channel)
+    markup.add(btn_help)
+
+    return markup
+
+
+# =========================
+# /START
+# =========================
+
+@bot.message_handler(commands=["start"])
+def start(message):
+
+    nama = message.from_user.first_name or "Kak"
+
+    text = (
+        f"👋 <b>Halo {nama}!</b>\n\n"
+        "Selamat datang di <b>KerjaDimana.id</b> 🚀\n\n"
+        "Temukan informasi lowongan kerja terbaru "
+        "dengan lebih cepat dan mudah.\n\n"
+        "Silakan pilih menu di bawah 👇"
+    )
+
+    bot.send_message(
+        message.chat.id,
+        text,
+        parse_mode="HTML",
+        reply_markup=menu_utama()
+    )
+
+
+# =========================
+# /HELP
+# =========================
+
+@bot.message_handler(commands=["help"])
+def help_command(message):
+
+    text = (
+        "ℹ️ <b>Bantuan KerjaDimana.id</b>\n\n"
+        "Gunakan menu berikut:\n\n"
+        "🆕 <b>/loker</b> — Lowongan terbaru\n"
+        "🔎 <b>/cari</b> — Cari pekerjaan\n"
+        "📍 <b>/lokasi</b> — Cari berdasarkan lokasi\n"
+        "💼 <b>/kategori</b> — Pilih kategori pekerjaan\n"
+        "🏠 <b>/start</b> — Kembali ke menu utama\n\n"
+        "📢 Update lowongan:\n"
+        "@KerjaDimana_id"
+    )
+
+    bot.send_message(
+        message.chat.id,
+        text,
+        parse_mode="HTML",
+        reply_markup=menu_utama()
+    )
+
+
+# =========================
+# /LOKER
+# =========================
+
+@bot.message_handler(commands=["loker"])
+def loker_command(message):
+
+    markup = types.InlineKeyboardMarkup()
+
+    markup.add(
+        types.InlineKeyboardButton(
+            "📢 Lihat Lowongan Terbaru",
+            url="https://t.me/KerjaDimana_id"
+        )
+    )
+
+    markup.add(
+        types.InlineKeyboardButton(
+            "🔎 Cari Lowongan",
+            callback_data="cari"
+        )
+    )
+
+    text = (
+        "🆕 <b>Lowongan Kerja Terbaru</b>\n\n"
+        "Lowongan terbaru terus diperbarui oleh "
+        "<b>KerjaDimana.id</b>.\n\n"
+        "Klik tombol di bawah untuk melihat lowongan 👇"
+    )
+
+    bot.send_message(
+        message.chat.id,
+        text,
+        parse_mode="HTML",
+        reply_markup=markup
+    )
+
+
+# =========================
+# CALLBACK BUTTON
+# =========================
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+
+    if call.data == "loker":
+
+        markup = types.InlineKeyboardMarkup()
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "📢 Buka Channel Lowongan",
+                url="https://t.me/KerjaDimana_id"
+            )
+        )
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "⬅️ Menu Utama",
+                callback_data="menu"
+            )
+        )
+
+        bot.edit_message_text(
+            "🆕 <b>Lowongan Terbaru</b>\n\n"
+            "Lihat update lowongan terbaru melalui "
+            "KerjaDimana.id 👇",
+            call.message.chat.id,
+            call.message.message_id,
+            parse_mode="HTML",
+            reply_markup=markup
+        )
+
+
+    elif call.data == "cari":
+
+        markup = types.InlineKeyboardMarkup()
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "⬅️ Menu Utama",
+                callback_data="menu"
+            )
+        )
+
+        bot.edit_message_text(
+            "🔎 <b>Cari Lowongan</b>\n\n"
+            "Fitur pencarian pekerjaan akan memungkinkan "
+            "kamu mencari berdasarkan posisi, perusahaan, "
+            "dan kata kunci.",
+            call.message.chat.id,
+            call.message.message_id,
+            parse_mode="HTML",
+            reply_markup=markup
+        )
+
+
+    elif call.data == "lokasi":
+
+        markup = types.InlineKeyboardMarkup(row_width=2)
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "📍 Cirebon",
+                callback_data="lokasi_cirebon"
+            ),
+            types.InlineKeyboardButton(
+                "📍 Indramayu",
+                callback_data="lokasi_indramayu"
+            ),
+            types.InlineKeyboardButton(
+                "📍 Majalengka",
+                callback_data="lokasi_majalengka"
+            ),
+            types.InlineKeyboardButton(
+                "📍 Kuningan",
+                callback_data="lokasi_kuningan"
+            )
+        )
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "⬅️ Menu Utama",
+                callback_data="menu"
+            )
+        )
+
+        bot.edit_message_text(
+            "📍 <b>Pilih Lokasi</b>\n\n"
+            "Silakan pilih lokasi pekerjaan:",
+            call.message.chat.id,
+            call.message.message_id,
+            parse_mode="HTML",
+            reply_markup=markup
+        )
+
+
+    elif call.data == "kategori":
+
+        markup = types.InlineKeyboardMarkup(row_width=2)
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "🏭 Operator",
+                callback_data="kategori_operator"
+            ),
+            types.InlineKeyboardButton(
+                "📋 Admin",
+                callback_data="kategori_admin"
+            ),
+            types.InlineKeyboardButton(
+                "💰 Sales",
+                callback_data="kategori_sales"
+            ),
+            types.InlineKeyboardButton(
+                "💻 IT",
+                callback_data="kategori_it"
+            )
+        )
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "⬅️ Menu Utama",
+                callback_data="menu"
+            )
+        )
+
+        bot.edit_message_text(
+            "💼 <b>Kategori Pekerjaan</b>\n\n"
+            "Pilih kategori pekerjaan:",
+            call.message.chat.id,
+            call.message.message_id,
+            parse_mode="HTML",
+            reply_markup=markup
+        )
+
+
+    elif call.data == "help":
+
+        markup = types.InlineKeyboardMarkup()
+
+        markup.add(
+            types.InlineKeyboardButton(
+                "⬅️ Menu Utama",
+                callback_data="menu"
+            )
+        )
+
+        bot.edit_message_text(
+            "ℹ️ <b>Pusat Bantuan</b>\n\n"
+            "🆕 Lowongan Terbaru\n"
+            "🔎 Cari pekerjaan\n"
+            "📍 Filter berdasarkan lokasi\n"
+            "💼 Filter berdasarkan kategori\n\n"
+            "Butuh bantuan lebih lanjut?\n"
+            "Silakan hubungi admin KerjaDimana.id.",
+            call.message.chat.id,
+            call.message.message_id,
+            parse_mode="HTML",
+            reply_markup=markup
+        )
+
+
+    elif call.data == "menu":
+
+        bot.edit_message_text(
+            "🏠 <b>Menu Utama KerjaDimana.id</b>\n\n"
+            "Silakan pilih layanan yang kamu butuhkan 👇",
+            call.message.chat.id,
+            call.message.message_id,
+            parse_mode="HTML",
+            reply_markup=menu_utama()
+        )
+
+    else:
+
+        bot.answer_callback_query(
+            call.id,
+            "🚧 Fitur sedang dikembangkan."
+        )
+
+
+# =========================
+# COMMAND TELEGRAM
+# =========================
+
+bot.set_my_commands([
+    types.BotCommand("start", "🏠 Menu utama"),
+    types.BotCommand("loker", "🆕 Lowongan terbaru"),
+    types.BotCommand("cari", "🔎 Cari lowongan"),
+    types.BotCommand("lokasi", "📍 Cari berdasarkan lokasi"),
+    types.BotCommand("kategori", "💼 Kategori pekerjaan"),
+    types.BotCommand("help", "ℹ️ Bantuan")
+])
+
+
+print("🤖 KerjaDimana.id Bot aktif...")
+
+bot.infinity_polling(
+    skip_pending=True,
+    timeout=30
+)
