@@ -17,7 +17,6 @@ BOT_TOKEN = os.getenv("BOT_TOKEN", "8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6
 CHAT_ID = (
     os.getenv("CHAT_ID")
     or os.getenv("-1004426208468")
-    or ""
 ).strip()
 
 RSS_FEEDS = [
