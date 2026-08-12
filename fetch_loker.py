@@ -8,7 +8,7 @@ import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8861664027:AAFhS__mhGD07rvyZ3Oyr8re0Tau8_lKw3w")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
 CHAT_ID = os.getenv("CHAT_ID", "-1004426208468")
 
 # Masukkan daftar RSS yang aktif (URL 404 bisa dihapus atau diperbarui)
