@@ -1,24 +1,26 @@
 import os
-import re
-import sys
-import json
-import time
-import html
-import requests
-import xml.etree.ElementTree as ET
+import telebot
+from telebot import types
+
 
 
 # =========================================================
 # CONFIG
 # =========================================================
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw").strip()
 
 CHAT_ID = (
     os.getenv("CHAT_ID")
-    or os.getenv("TELEGRAM_CHAT_ID")
+    or os.getenv("-1004426208468")
     or ""
 ).strip()
+
+if not BOT_TOKEN:
+    raise RuntimeError(
+        "BOT_TOKEN tidak ditemukan. "
+        "Masukkan BOT_TOKEN di Railway Variables."
+    )
 
 RSS_FEEDS = [
     "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml",
