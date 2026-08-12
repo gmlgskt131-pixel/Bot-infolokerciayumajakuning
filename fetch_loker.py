@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from datetime import datetime
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
-CHAT_ID = os.getenv("CHAT_ID", "-1004426208468")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "-1004426208468")
 
 # Masukkan daftar RSS yang aktif (URL 404 bisa dihapus atau diperbarui)
 RSS_FEEDS = [
