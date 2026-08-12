@@ -7,7 +7,11 @@ from telebot import types
 # CONFIG
 # =========================
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "").strip()
+BOT_TOKEN = (
+    os.getenv("BOT_TOKEN")
+    or os.getenv("TOKEN_BOT")
+    or ""
+).strip()
 MY_CHAT_ID = (
     os.getenv("MY_CHAT_ID")
     or os.getenv("CHAT_ID")
