@@ -30,7 +30,7 @@ jobs:
       - name: Jalankan Script Loker
         env:
           BOT_TOKEN: ${{ 8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw }}
-          CHAT_ID: "@-1004426208468" # Atau dari ${{ secrets.CHAT_ID }}
+          TELEGRAM_CHAT_ID: "@-1004426208468" # Atau dari ${{ secrets.CHAT_ID }}
         run: python fetch_loker.py
 
       - name: Simpan Database Anti-Duplikat (sent.json)
