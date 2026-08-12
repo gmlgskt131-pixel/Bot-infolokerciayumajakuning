@@ -1,9 +1,20 @@
-name: Auto Multi-Source Loker Bot
+name: Pesan Telegram Terjadwal
 
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2,6,12 * * *'
+    workflow_dispatch:
+
+  schedule:
+    - cron: "0 8 * * *"
+      timezone: "Asia/Jakarta"
+
+    - cron: "0 12 * * *"
+      timezone: "Asia/Jakarta"
+
+    - cron: "0 20 * * *"
+      timezone: "Asia/Jakarta"
+
 
 jobs:
   run-bot:
@@ -20,18 +31,19 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install Dependencies
-        run: |
+      - name: Istall Requests
+        run: pip install requests
+      
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Jalankan Script Loker
+      - name: Kirim Pesan Telegram
         env:
           BOT_TOKEN: ${{ 8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw }}
           TELEGRAM_CHAT_ID: "@-1004426208468" # Atau dari ${{ secrets.CHAT_ID }}
-        run: python fetch_loker.py
+        run: python pesan_terjadwal.py
 
       - name: Simpan Database Anti-Duplikat (sent.json)
         run: |
