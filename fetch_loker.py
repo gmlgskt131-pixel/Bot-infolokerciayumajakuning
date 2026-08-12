@@ -1,7 +1,11 @@
 import os
-import telebot
-from telebot import types
-
+import re
+import sys
+import json
+import time
+import html
+import requests
+import xml.etree.ElementTree as ET
 
 
 # =========================================================
@@ -16,12 +20,6 @@ CHAT_ID = (
     or ""
 ).strip()
 
-if not BOT_TOKEN:
-    raise RuntimeError(
-        "BOT_TOKEN tidak ditemukan. "
-        "Masukkan BOT_TOKEN di Railway Variables."
-    )
-
 RSS_FEEDS = [
     "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml",
     "https://rss.app/feeds/7oEScJlZFeoYE3oo.xml",
@@ -31,39 +29,28 @@ IKLAN = "https://crypotential.com/kxseizepn?key=b27dbc018fb141e5773a6cc85f207c78
 
 SENT_FILE = "sent.json"
 
+TELEGRAM_API = f"https://api.telegram.org/bot{8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw}"
+
 
 # =========================================================
 # VALIDASI
 # =========================================================
 
-if not BOT_TOKEN:
-    print("❌ BOT_TOKEN tidak ditemukan!")
-    sys.exit(1)
+def validate_config():
+    if not BOT_TOKEN:
+        print("❌ BOT_TOKEN tidak ditemukan.")
+        print("Tambahkan BOT_TOKEN di GitHub Secrets.")
+        sys.exit(1)
 
-if not CHAT_ID:
-    print("❌ CHAT_ID tidak ditemukan!")
-    sys.exit(1)
-
-TELEGRAM_API = f"https://api.telegram.org/bot{BOT_TOKEN}"
+    if not CHAT_ID:
+        print("❌ CHAT_ID tidak ditemukan.")
+        print("Tambahkan CHAT_ID di GitHub Secrets.")
+        sys.exit(1)
 
 
 # =========================================================
-# DATABASE ANTI DUPLIKAT
+# DATABASE ANTI-DUPLIKAT
 # =========================================================
-
-def load_sent():
-    try:
-        with open(SENT_FILE, "r", encoding="utf-8") as file:
-            data = json.load(file)
-
-            if isinstance(data, list):
-                return data
-
-    except (FileNotFoundError, json.JSONDecodeError):
-        pass
-
-    return []
-
 
 def save_sent(sent):
     with open(SENT_FILE, "w", encoding="utf-8") as file:
@@ -75,33 +62,63 @@ def save_sent(sent):
         )
 
 
+def load_sent():
+    # Kalau sent.json belum ada, otomatis buat
+    if not os.path.exists(SENT_FILE):
+        print("ℹ️ sent.json belum ada. Membuat file baru...")
+        save_sent([])
+        return []
+
+    try:
+        with open(SENT_FILE, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        if isinstance(data, list):
+            return data
+
+        print("⚠️ Isi sent.json tidak valid. Database direset.")
+        save_sent([])
+        return []
+
+    except (json.JSONDecodeError, OSError) as error:
+        print(f"⚠️ Gagal membaca sent.json: {error}")
+        print("⚠️ Database anti-duplikat direset.")
+        save_sent([])
+        return []
+
+
 # =========================================================
-# CLEAN TEXT
+# BERSIHKAN TEKS
 # =========================================================
 
 def clean_text(raw_text):
     if not raw_text:
         return ""
 
+    # Hapus tag HTML dari RSS
     text = re.sub(r"<[^>]+>", " ", raw_text)
+
+    # Decode HTML entity
     text = html.unescape(text)
+
+    # Rapikan spasi
     text = " ".join(text.split())
 
+    # Escape supaya aman untuk Telegram HTML
     return html.escape(text)
 
 
 # =========================================================
-# KIRIM KE TELEGRAM
+# KIRIM TELEGRAM
 # =========================================================
 
 def send_telegram(title, description, link):
-
-    # Hindari pesan melebihi batas Telegram
+    # Sisakan ruang untuk judul/footer agar tidak melebihi limit Telegram
     if len(description) > 3000:
         description = description[:3000] + "..."
 
     pesan = (
-        "📢 <b>INFO LOKER TERBARU</b>\n\n"
+        "📢 <b>INFO KerjaDimana</b>\n\n"
         f"🏢 <b>{title}</b>\n\n"
         "📝 <b>Deskripsi Pekerjaan</b>\n"
         f"{description}\n\n"
@@ -143,20 +160,30 @@ def send_telegram(title, description, link):
             timeout=30
         )
 
+    except requests.RequestException as error:
+        print(f"❌ Gagal terhubung ke Telegram: {error}")
+        return False
+
+    try:
         data = response.json()
 
-        if response.status_code == 200 and data.get("ok"):
-           print(...)
-           return True
-        print("❌ GAGAL TELEGRAM")
-        print(f"HTTP Status: {response.status_code}")
-        print(f"Response: {response.text}")
-
+    except ValueError:
+        print("❌ Response Telegram bukan JSON.")
+        print(response.text)
         return False
 
-    except requests.RequestException as error:
-        print(f"❌ Telegram request error: {error}")
-        return False
+    if response.status_code == 200 and data.get("ok"):
+        print(
+            f"✅ BERHASIL: "
+            f"{html.unescape(title)[:70]}"
+        )
+        return True
+
+    print("❌ GAGAL TELEGRAM")
+    print(f"HTTP Status: {response.status_code}")
+    print(f"Response: {response.text}")
+
+    return False
 
 
 # =========================================================
@@ -164,7 +191,6 @@ def send_telegram(title, description, link):
 # =========================================================
 
 def process_feed(rss_url, sent):
-
     print()
     print("=" * 60)
     print(f"📡 Mengambil RSS: {rss_url}")
@@ -193,7 +219,7 @@ def process_feed(rss_url, sent):
         root = ET.fromstring(response.content)
 
     except ET.ParseError as error:
-        print(f"❌ XML RSS rusak: {error}")
+        print(f"❌ XML RSS tidak valid: {error}")
         return 0
 
     items = root.findall(".//item")
@@ -203,7 +229,6 @@ def process_feed(rss_url, sent):
     jumlah_berhasil = 0
 
     for item in items[:5]:
-
         title_raw = item.findtext("title", "")
         link_raw = item.findtext("link", "")
         desc_raw = item.findtext("description", "")
@@ -211,10 +236,14 @@ def process_feed(rss_url, sent):
         link = (link_raw or "").strip()
 
         if not link:
+            print("⏭️ Item tidak mempunyai link.")
             continue
 
         if link in sent:
-            print(f"⏭️ Sudah dikirim: {title_raw[:60]}")
+            print(
+                f"⏭️ Sudah pernah dikirim: "
+                f"{title_raw[:60]}"
+            )
             continue
 
         title = clean_text(title_raw)
@@ -226,10 +255,13 @@ def process_feed(rss_url, sent):
         if len(description) < 10:
             description = (
                 "Klik tombol Lihat Lowongan untuk melihat "
-                "informasi lengkap, kualifikasi, dan cara melamar."
+                "detail pekerjaan, kualifikasi, dan cara melamar."
             )
 
-        print(f"📨 Mengirim: {html.unescape(title)[:70]}")
+        print(
+            f"📨 Mengirim: "
+            f"{html.unescape(title)[:70]}"
+        )
 
         berhasil = send_telegram(
             title,
@@ -239,10 +271,13 @@ def process_feed(rss_url, sent):
 
         if berhasil:
             sent.append(link)
+
+            # Langsung simpan agar tidak hilang jika proses berhenti
             save_sent(sent)
 
             jumlah_berhasil += 1
 
+            # Jeda antar posting
             time.sleep(2)
 
     return jumlah_berhasil
@@ -253,13 +288,14 @@ def process_feed(rss_url, sent):
 # =========================================================
 
 def main():
+    validate_config()
 
     sent = load_sent()
 
     print("=" * 60)
     print("🤖 KerjaDimana.id Auto Loker")
     print(f"📢 CHAT_ID: {CHAT_ID}")
-    print(f"📚 Sudah tersimpan: {len(sent)} lowongan")
+    print(f"📚 Database anti-duplikat: {len(sent)} link")
     print("=" * 60)
 
     total = 0
@@ -274,7 +310,10 @@ def main():
 
     print()
     print("=" * 60)
-    print(f"✅ SELESAI — {total} lowongan baru dikirim.")
+    print(
+        f"✅ SELESAI — "
+        f"{total} lowongan baru dikirim."
+    )
     print("=" * 60)
 
 
