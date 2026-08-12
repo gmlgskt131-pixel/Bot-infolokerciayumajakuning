@@ -2,10 +2,10 @@ import os
 import telebot
 
 # 1. Ambil token dari Environment Variable Railway (atau gunakan token langsung jika variabel tidak ada)
-TOKEN = os.getenv("8883789126:AAHpQbrJKMd1I8xKYpQT_C7LCUB1giQsXqE")
+TOKEN = os.getenv("8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
 
 # 2. Inisialisasi bot menggunakan variabel TOKEN
-bot = telebot.TeleBot("8883789126:AAHpQbrJKMd1I8xKYpQT_C7LCUB1giQsXqE")
+bot = telebot.TeleBot("8883789126:AAFWOh2bW2-ch1in3GEDK04GSxdBKPhn6tw")
 
 # Chat ID Anda untuk notifikasi otomatis saat bot online
 MY_CHAT_ID = "-1004426208468"
