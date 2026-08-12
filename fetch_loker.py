@@ -70,11 +70,9 @@ for RSS_URL in RSS_FEEDS:
 
 🏢 <b>{title}</b>
 
-📝 {desc[:350]}...
+📝 {desc[:3]}...
 
 ━━━━━━━━━━━━━━
-
-🕒 <b>Update:</b> {datetime.now().strftime("%d-%m-%Y %H:%M")}
 
 💰 <b>Penghasilan Tambahan</b>
 👉 {IKLAN}
@@ -99,14 +97,13 @@ for RSS_URL in RSS_FEEDS:
 
             res = requests.post(telegram_url, json=payload, timeout=30)
             
-            if res.status_code == 200:
-                print(f"[BERHASIL] Sent: {title_raw[:30]}...")
-                sent.append(link)
-                time.sleep(3)  # Jeda anti rate limit
-            else:
-                print(f"[GAGAL TELEGRAM] Status {res.status_code}: {res.text}")
-                has_error = True
-
+           if response.status_code == 200 and data.get("ok"):
+            print(f"✅ BERHASIL: {title[:50]}")
+            return True
+             print("❌ GAGAL TELEGRAM")
+        print(f"HTTP Status: {response.status_code}")
+        print(f"Response: {response.text}")
+    
     except Exception as e:
         print(f"ERROR memproses {RSS_URL}: {e}")
         has_error = True
