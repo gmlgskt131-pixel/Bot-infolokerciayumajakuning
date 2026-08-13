@@ -164,7 +164,7 @@ def require_admin(message):
     return False
 
 
-def run_loker_now():
+def run_loker_now(force=False):
     if not TARGET_CHAT_ID:
         return False, "CHAT_ID/TELEGRAM_CHAT_ID belum disetel di Railway Variables."
 
@@ -178,13 +178,16 @@ def run_loker_now():
         output = io.StringIO()
 
         with contextlib.redirect_stdout(output):
-            fetch_loker.main()
+            total = fetch_loker.main(force=force)
 
         log = output.getvalue()
         match = re.search(r"(\d+) lowongan baru dikirim", log)
-        total = match.group(1) if match else "0"
+        total_text = match.group(1) if match else str(total)
 
-        return True, f"Selesai. {total} lowongan baru dikirim."
+        if force:
+            return True, f"Selesai. {total_text} loker terbaru dikirim ulang."
+
+        return True, f"Selesai. {total_text} lowongan baru dikirim."
 
     except SystemExit as error:
         return False, f"Gagal menjalankan loker. Exit code: {error.code}"
@@ -209,6 +212,8 @@ def main_menu():
         types.KeyboardButton("/jadwal"),
         types.KeyboardButton("/setjadwal"),
         types.KeyboardButton("/runloker"),
+        types.KeyboardButton("/forceloker"),
+        types.KeyboardButton("/resetloker"),
         types.KeyboardButton("/id"),
         types.KeyboardButton("/admin")
     )
@@ -243,6 +248,8 @@ def handle_help(message):
             "/jadwal - Lihat jadwal otomatis\n"
             "/setjadwal 08:00 12:00 19:40 - Ubah jadwal otomatis\n"
             "/runloker - Kirim loker sekarang\n"
+            "/forceloker - Paksa kirim ulang loker terbaru\n"
+            "/resetloker - Reset riwayat anti-duplikat\n"
             "/id - Lihat ID Telegram kamu\n"
             "/admin - Info admin"
         ),
@@ -325,6 +332,39 @@ def handle_runloker(message):
     bot.reply_to(
         message,
         info if success else f"Gagal: {info}",
+        reply_markup=main_menu()
+    )
+
+
+@bot.message_handler(commands=["forceloker"])
+def handle_forceloker(message):
+    if not require_admin(message):
+        return
+
+    bot.reply_to(message, "Oke, loker terbaru sedang dipaksa kirim ulang.")
+    success, info = run_loker_now(force=True)
+
+    bot.reply_to(
+        message,
+        info if success else f"Gagal: {info}",
+        reply_markup=main_menu()
+    )
+
+
+@bot.message_handler(commands=["resetloker"])
+def handle_resetloker(message):
+    if not require_admin(message):
+        return
+
+    fetch_loker.save_sent([])
+
+    bot.reply_to(
+        message,
+        (
+            "Riwayat loker sudah direset.\n\n"
+            "Setelah ini /runloker akan mengirim lagi loker terbaru "
+            "yang ada di RSS."
+        ),
         reply_markup=main_menu()
     )
 
