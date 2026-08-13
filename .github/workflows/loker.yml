@@ -3,7 +3,10 @@ name: Auto Multi-Source Loker Bot
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2,6,12 * * *'
+    # WIB schedule: 08:00, 12:00, 19:40 every day.
+    - cron: '0 1 * * *'
+    - cron: '0 5 * * *'
+    - cron: '40 12 * * *'
 
 jobs:
   run-bot:
