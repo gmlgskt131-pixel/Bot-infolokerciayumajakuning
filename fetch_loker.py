@@ -190,7 +190,7 @@ def send_telegram(title, description, link):
 # PROSES RSS
 # =========================================================
 
-def process_feed(rss_url, sent):
+def process_feed(rss_url, sent, force=False):
     print()
     print("=" * 60)
     print(f"📡 Mengambil RSS: {rss_url}")
@@ -239,7 +239,7 @@ def process_feed(rss_url, sent):
             print("⏭️ Item tidak mempunyai link.")
             continue
 
-        if link in sent:
+        if link in sent and not force:
             print(
                 f"⏭️ Sudah pernah dikirim: "
                 f"{title_raw[:60]}"
@@ -270,10 +270,11 @@ def process_feed(rss_url, sent):
         )
 
         if berhasil:
-            sent.append(link)
+            if link not in sent:
+                sent.append(link)
 
-            # Langsung simpan agar tidak hilang jika proses berhenti
-            save_sent(sent)
+                # Langsung simpan agar tidak hilang jika proses berhenti
+                save_sent(sent)
 
             jumlah_berhasil += 1
 
@@ -287,7 +288,7 @@ def process_feed(rss_url, sent):
 # MAIN
 # =========================================================
 
-def main():
+def main(force=False):
     validate_config()
 
     sent = load_sent()
@@ -296,6 +297,7 @@ def main():
     print("🤖 KerjaDimana.id Auto Loker")
     print(f"📢 CHAT_ID: {CHAT_ID}")
     print(f"📚 Database anti-duplikat: {len(sent)} link")
+    print(f"🔁 Force kirim ulang: {'YA' if force else 'TIDAK'}")
     print("=" * 60)
 
     total = 0
@@ -303,7 +305,8 @@ def main():
     for rss_url in RSS_FEEDS:
         total += process_feed(
             rss_url,
-            sent
+            sent,
+            force=force
         )
 
     save_sent(sent)
@@ -315,6 +318,8 @@ def main():
         f"{total} lowongan baru dikirim."
     )
     print("=" * 60)
+
+    return total
 
 
 if __name__ == "__main__":
