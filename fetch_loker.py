@@ -125,7 +125,7 @@ def load_sent():
 # BERSIHKAN TEKS
 # =========================================================
 
-def clean_text(raw_text):
+def strip_html(raw_text):
     if not raw_text:
         return ""
 
@@ -136,10 +136,42 @@ def clean_text(raw_text):
     text = html.unescape(text)
 
     # Rapikan spasi
-    text = " ".join(text.split())
+    return " ".join(text.split())
+
+
+def clean_text(raw_text):
+    text = strip_html(raw_text)
 
     # Escape supaya aman untuk Telegram HTML
     return html.escape(text)
+
+
+def clean_job_title(raw_title):
+    title = strip_html(raw_title)
+
+    for suffix in (
+        " - Glints",
+        " | Glints TapLoker",
+        " - Karir.com",
+        " - Jobstreet",
+        " - JobStreet",
+    ):
+        title = title.replace(suffix, "")
+
+    return title.strip(" ,-")
+
+
+def fallback_description(title, source):
+    source_text = f" dari {source}" if source else ""
+
+    return (
+        f"Informasi lowongan ini ditemukan{source_text} untuk area "
+        "Cirebon/Kuningan dan sekitarnya. "
+        f"Posisi yang tersedia: {title}. "
+        "Buka tombol Lihat Lowongan untuk membaca detail pekerjaan, "
+        "kualifikasi, persyaratan, gaji, dan cara melamar langsung "
+        "di halaman resmi lowongan."
+    )
 
 
 # =========================================================
@@ -266,6 +298,7 @@ def process_feed(rss_url, sent, force=False):
         title_raw = item.findtext("title", "")
         link_raw = item.findtext("link", "")
         desc_raw = item.findtext("description", "")
+        source_raw = item.findtext("source", "")
 
         link = (link_raw or "").strip()
 
@@ -280,17 +313,20 @@ def process_feed(rss_url, sent, force=False):
             )
             continue
 
-        title = clean_text(title_raw)
-        description = clean_text(desc_raw)
+        title_plain = clean_job_title(title_raw)
+        description_plain = strip_html(desc_raw)
 
-        if not title:
-            title = "Lowongan Kerja Terbaru"
+        if not title_plain:
+            title_plain = "Lowongan Kerja Terbaru"
 
-        if len(description) < 10:
-            description = (
-                "Klik tombol Lihat Lowongan untuk melihat "
-                "detail pekerjaan, kualifikasi, dan cara melamar."
+        if len(description_plain) < 80 or description_plain.lower() in title_plain.lower():
+            description_plain = fallback_description(
+                title_plain,
+                strip_html(source_raw)
             )
+
+        title = html.escape(title_plain)
+        description = html.escape(description_plain)
 
         print(
             f"📨 Mengirim: "
