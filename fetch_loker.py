@@ -20,10 +20,44 @@ CHAT_ID = (
     or ""
 ).strip()
 
-RSS_FEEDS = [
+DEFAULT_RSS_FEEDS = [
     "https://rss.app/feeds/MZMZkLtTiHKbr2ck.xml",
     "https://rss.app/feeds/7oEScJlZFeoYE3oo.xml",
 ]
+
+DEFAULT_FALLBACK_RSS_FEEDS = [
+    (
+        "https://news.google.com/rss/search?"
+        "q=loker%20Cirebon%20OR%20Kuningan%20"
+        "site%3Aglints.com%20OR%20site%3Ajobstreet.co.id%20OR%20site%3Akarir.com"
+        "&hl=id&gl=ID&ceid=ID:id"
+    ),
+    (
+        "https://news.google.com/rss/search?"
+        "q=lowongan%20kerja%20Cirebon%20OR%20Kuningan%20"
+        "site%3Aglints.com%20OR%20site%3Ajobstreet.co.id"
+        "&hl=id&gl=ID&ceid=ID:id"
+    ),
+]
+
+
+def env_list(name, default):
+    raw_value = os.getenv(name, "").strip()
+
+    if not raw_value:
+        return default[:]
+
+    items = [
+        item.strip()
+        for item in re.split(r"[\n,]+", raw_value)
+        if item.strip()
+    ]
+
+    return items or default[:]
+
+
+RSS_FEEDS = env_list("RSS_FEEDS", DEFAULT_RSS_FEEDS)
+FALLBACK_RSS_FEEDS = env_list("FALLBACK_RSS_FEEDS", DEFAULT_FALLBACK_RSS_FEEDS)
 
 IKLAN = "https://crypotential.com/kxseizepn?key=b27dbc018fb141e5773a6cc85f207c78"
 
@@ -308,6 +342,20 @@ def main(force=False):
             sent,
             force=force
         )
+
+    if total == 0 and FALLBACK_RSS_FEEDS:
+        print()
+        print("=" * 60)
+        print("⚠️ Feed utama tidak mengirim loker.")
+        print("🔎 Mencoba fallback Google News RSS...")
+        print("=" * 60)
+
+        for rss_url in FALLBACK_RSS_FEEDS:
+            total += process_feed(
+                rss_url,
+                sent,
+                force=force
+            )
 
     save_sent(sent)
 
