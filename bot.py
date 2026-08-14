@@ -341,7 +341,7 @@ def handle_forceloker(message):
     if not require_admin(message):
         return
 
-    bot.reply_to(message, "Oke, loker terbaru sedang dipaksa kirim ulang.")
+    bot.reply_to(message, "Oke, loker terbaru sedang kirim ulang.")
     success, info = run_loker_now(force=True)
 
     bot.reply_to(
