@@ -204,7 +204,7 @@ def send_telegram(title, description, link):
             ],
             [
                 {
-                    "text": "💰 Penghasilan Tambahan",
+                    "text": "📄 Buat CV Generator Kandidat",
                     "url": "https://aboardpoodlechat.com/u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
                 }
             ]
