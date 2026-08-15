@@ -189,8 +189,8 @@ def send_telegram(title, description, link):
         "📝 <b>Deskripsi Pekerjaan</b>\n"
         f"{description}\n\n"
         "━━━━━━━━━━━━━━\n\n"
-        "💰 <b>Penghasilan Tambahan</b>\n"
-        f"👉 {IKLAN}\n\n"
+        "📄 <b>BUAT CV GENERATOR KANDIDAT</b>\n"
+        "🎯 Buat CV profesional untuk meningkatkan peluang diterima kerja.\n\n"
         "🤖 <b>KerjaDimana.id</b>"
     )
 
@@ -198,14 +198,14 @@ def send_telegram(title, description, link):
         "inline_keyboard": [
             [
                 {
-                    "text": "📄 Lihat Lowongan",
-                    "url": link
+                    "text": "📄 Buat CV Generator Kandidat",
+                    "url": "https://crypotential.com/vynh0yqe?key=0f3039ec0183e232743c1c0ce0a299f6"
                 }
             ],
             [
                 {
                     "text": "💰 Penghasilan Tambahan",
-                    "url": IKLAN
+                    "url": "https://aboardpoodlechat.com/u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
                 }
             ]
         ]
@@ -317,7 +317,7 @@ def process_feed(rss_url, sent, force=False):
         description_plain = strip_html(desc_raw)
 
         if not title_plain:
-            title_plain = "Lowongan Kerja Terbaru"
+            title_plain = "KerjaDimana.id"
 
         if len(description_plain) < 80 or description_plain.lower() in title_plain.lower():
             description_plain = fallback_description(
