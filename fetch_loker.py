@@ -198,13 +198,13 @@ def send_telegram(title, description, link):
         "inline_keyboard": [
             [
                 {
-                    "text": "📄 Buat CV Generator Kandidat",
+                    "text": "📄 Generator Buat CV",
                     "url": "https://crypotential.com/vynh0yqe?key=0f3039ec0183e232743c1c0ce0a299f6"
                 }
             ],
             [
                 {
-                    "text": "📄 Buat CV Generator Kandidat",
+                    "text": "📄 Generator Buat Lamaran",
                     "url": "https://aboardpoodlechat.com/u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
                 }
             ]
