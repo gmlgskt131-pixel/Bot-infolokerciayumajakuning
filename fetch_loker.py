@@ -195,21 +195,21 @@ def send_telegram(title, description, link):
     )
 
     keyboard = {
-        "inline_keyboard": [
-            [
-                {
-                    "text": "📄 Generator Buat CV",
-                    "url": "https://crypotential.com/vynh0yqe?key=0f3039ec0183e232743c1c0ce0a299f6"
-                }
-            ],
-            [
-                {
-                    "text": "📄 Generator Buat Lamaran",
-                    "url": "https://aboardpoodlechat.com/u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
-                }
-            ]
+    "inline_keyboard": [
+        [
+            {
+                "text": "✨ Buat CV Profesional",
+                "url": "https://kerjadimana-cv-2026.gemilangsakti31.workers.dev"
+            }
+        ],
+        [
+            {
+                "text": "✍️ Buat Surat Lamaran",
+                "url": "https://aboardpoodlechat.com/u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
+            }
         ]
-    }
+    ]
+}
 
     payload = {
         "chat_id": CHAT_ID,
