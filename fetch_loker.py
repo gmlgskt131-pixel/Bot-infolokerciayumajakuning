@@ -194,17 +194,17 @@ def send_telegram(title, description, link):
         "🤖 <b>KerjaDimana.id</b>"
     )
 
-    keyboard = {
+keyboard = {
     "inline_keyboard": [
         [
             {
-                "text": "📄 Buat CV Profesional",
-                "url": "https://cv-kerjadimana.gemilangsakti31.workers.dev"
+                "text": "📝 Buat CV Profesional",
+                "url": ""url": "https://cv-kerjadimana.gemilangsakti31.workers.dev"
             }
         ],
         [
             {
-                "text": "✍️ Buat Surat Lamaran",
+                "text": "📄 Generator Buat Lamaran",
                 "url": "https://aboardpoodlechat.com/u7t8hcvxga?key=9718e827473e98bbec182ac0a8acf4e3"
             }
         ]
