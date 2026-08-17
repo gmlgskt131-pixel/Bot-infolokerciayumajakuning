@@ -198,8 +198,8 @@ keyboard = {
     "inline_keyboard": [
         [
             {
-                "text": "📝 Buat CV Profesional",
-                "url": ""url": "https://cv-kerjadimana.gemilangsakti31.workers.dev"
+                "text": "📄 Buat CV Profesional",
+                "url": "https://cv-kerjadimana.gemilangsakti31.workers.dev"
             }
         ],
         [
