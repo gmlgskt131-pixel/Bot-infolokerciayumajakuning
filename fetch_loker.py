@@ -194,7 +194,7 @@ def send_telegram(title, description, link):
         "🤖 <b>KerjaDimana.id</b>"
     )
 
-    keyboard = {
+   keyboard = {
     "inline_keyboard": [
         [
             {
